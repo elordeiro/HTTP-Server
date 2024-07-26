@@ -62,5 +62,6 @@ func main() {
 	server := NewServer("4221")
 	server.AddPath("/", (*Request).Ok)
 	server.AddPath("/echo", (*Request).Echo)
+	server.AddPath("/user-agent", (*Request).UserAgent)
 	server.Listen()
 }

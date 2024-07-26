@@ -58,14 +58,21 @@ func (req *Request) Echo() *Response {
 	}
 }
 
+func (req *Request) UserAgent() *Response {
+	headers := map[string]string{}
+	headers["Content-Type"] = "text/plain"
+	body := req.Headers["user-agent:"]
+	headers["Content-Length"] = strconv.Itoa(len(body))
+	return &Response{
+		Version: req.Version,
+		Status:  StatusOk,
+		Reason:  "OK",
+		Headers: headers,
+		Body:    body,
+	}
+}
+
 func (req *Request) NotFound() *Response {
-	// return &Response{
-	// 	Version: req.Version,
-	// 	Status:  StatusOk,
-	// 	Reason:  "OK",
-	// 	Headers: map[string]string{},
-	// 	Body:    "",
-	// }
 	return &Response{
 		Version: req.Version,
 		Status:  StatusNotFound,

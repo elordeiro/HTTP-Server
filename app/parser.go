@@ -22,7 +22,7 @@ func (rd *Reader) Read() (*Request, error) {
 			return nil, err
 		}
 
-		header = strings.TrimSuffix(header, "\r\n")
+		header = strings.ToLower(strings.TrimSuffix(header, "\r\n"))
 		if header == "" {
 			break
 		}
