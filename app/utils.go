@@ -26,7 +26,7 @@ const (
 // Custom Types ---------------------------------------------------------------
 type Server struct {
 	Listener net.Listener
-	Paths    []string
+	Paths    map[string]func(*Request) *Response
 }
 
 type Request struct {

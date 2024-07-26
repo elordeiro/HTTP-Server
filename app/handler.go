@@ -1,38 +1,71 @@
 package main
 
-import "slices"
+import (
+	"strconv"
+	"strings"
+)
 
 func (server *Server) Handle(req *Request) *Response {
 	switch req.Method {
 	case MethodGet:
 		return server.Get(req)
-	// case MethodPost:
-	// 	return req.Post()
-	// case MethodPut:
-	// 	return req.Put()
-	// case MethodDelete:
-	// 	return req.Delete()
-	// case MethodHead:
-	// 	return req.Head()
 	default:
 		return req.NotFound()
 	}
 }
 
 func (server *Server) Get(req *Request) *Response {
-	if slices.Contains(server.Paths, req.Path) {
-		return &Response{
-			Version: req.Version,
-			Status:  StatusOk,
-			Reason:  "OK",
-			Headers: map[string]string{},
-			Body:    "",
+	if req.Path == "/" {
+		if handler, ok := server.Paths["/"]; ok {
+			return handler(req)
+		} else {
+			return req.NotFound()
 		}
+	}
+
+	parts := strings.Split(req.Path, "/")
+	if handler, ok := server.Paths["/"+parts[1]]; ok {
+		return handler(req)
 	}
 	return req.NotFound()
 }
 
+func (server *Server) AddPath(path string, handler func(*Request) *Response) {
+	server.Paths[path] = handler
+}
+
+func (req *Request) Ok() *Response {
+	return &Response{
+		Version: req.Version,
+		Status:  StatusOk,
+		Reason:  "OK",
+		Headers: map[string]string{},
+		Body:    "",
+	}
+}
+
+func (req *Request) Echo() *Response {
+	headers := map[string]string{}
+	headers["Content-Type"] = "text/plain"
+	body := strings.TrimPrefix(req.Path, "/echo/")
+	headers["Content-Length"] = strconv.Itoa(len(body))
+	return &Response{
+		Version: req.Version,
+		Status:  StatusOk,
+		Reason:  "OK",
+		Headers: headers,
+		Body:    body,
+	}
+}
+
 func (req *Request) NotFound() *Response {
+	// return &Response{
+	// 	Version: req.Version,
+	// 	Status:  StatusOk,
+	// 	Reason:  "OK",
+	// 	Headers: map[string]string{},
+	// 	Body:    "",
+	// }
 	return &Response{
 		Version: req.Version,
 		Status:  StatusNotFound,

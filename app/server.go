@@ -14,18 +14,16 @@ func NewServer(port string) *Server {
 		os.Exit(1)
 	}
 
-	paths := make([]string, 0)
-	paths = append(paths, "/")
-
 	return &Server{
 		Listener: l,
-		Paths:    paths,
+		Paths:    map[string]func(*Request) *Response{},
 	}
 }
 
 // ----------------------------------------------------------------------------
 
 func (server *Server) Listen() {
+	fmt.Println("Listening on port " + server.Listener.Addr().String())
 	for {
 		conn, err := server.Listener.Accept()
 		if err != nil {
@@ -43,8 +41,13 @@ func (server *Server) Serve(conn net.Conn) {
 	for {
 		request, err := rd.Read()
 		if err != nil {
+			if err.Error() == "EOF" {
+				fmt.Println("Connection closed")
+				conn.Close()
+				break
+			}
 			fmt.Println("Error reading request: ", err.Error())
-			continue
+			return
 		}
 		response := server.Handle(request)
 		wt.Write(response)
@@ -57,5 +60,7 @@ func OkResponse() []byte {
 
 func main() {
 	server := NewServer("4221")
+	server.AddPath("/", (*Request).Ok)
+	server.AddPath("/echo", (*Request).Echo)
 	server.Listen()
 }

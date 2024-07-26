@@ -62,7 +62,6 @@ func (rd *Reader) readBody() string {
 
 func (wt *Writer) Write(response *Response) (int, error) {
 	bytes := []byte{}
-	// bytes = append(bytes, []byte("HTTP")...)
 	bytes = append(bytes, response.Version...)
 	bytes = append(bytes, ' ')
 	bytes = append(bytes, strconv.Itoa(response.Status)...)
@@ -72,7 +71,7 @@ func (wt *Writer) Write(response *Response) (int, error) {
 
 	for key, value := range response.Headers {
 		bytes = append(bytes, key...)
-		bytes = append(bytes, ' ')
+		bytes = append(bytes, ':')
 		bytes = append(bytes, value...)
 		bytes = append(bytes, "\r\n"...)
 	}
