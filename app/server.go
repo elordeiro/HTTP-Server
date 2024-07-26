@@ -1,22 +1,30 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"os"
 )
 
+// Globals --------------------------------------------------------------------
+var RunningServer *Server
+
+// ----------------------------------------------------------------------------
+
 // Constructor ----------------------------------------------------------------
-func NewServer(port string) *Server {
-	l, err := net.Listen("tcp", "0.0.0.0:"+port)
+func NewServer(config *Config) *Server {
+	l, err := net.Listen("tcp", "0.0.0.0:"+config.Port)
 	if err != nil {
-		fmt.Println("Failed to bind to port " + port)
+		fmt.Println("Failed to bind to port " + config.Port)
 		os.Exit(1)
 	}
 
 	return &Server{
-		Listener: l,
-		Paths:    map[string]func(*Request) *Response{},
+		Listener:  l,
+		Paths:     map[string]func(*Request, *Server) *Response{},
+		Directory: config.Directory,
+		Port:      config.Port,
 	}
 }
 
@@ -54,14 +62,32 @@ func (server *Server) Serve(conn net.Conn) {
 	}
 }
 
-func OkResponse() []byte {
-	return []byte("HTTP/1.1 200 OK\r\n\r\n")
+func (server *Server) AddPath(path string, handler func(*Request, *Server) *Response) {
+	server.Paths[path] = handler
+}
+
+func parseFlags() (*Config, error) {
+	config := &Config{}
+	flag.StringVar(&config.Directory, "directory", "", "Directory that server can access")
+	flag.StringVar(&config.Port, "port", "4221", "Server Listening Port")
+
+	flag.Parse()
+	return config, nil
 }
 
 func main() {
-	server := NewServer("4221")
-	server.AddPath("/", (*Request).Ok)
-	server.AddPath("/echo", (*Request).Echo)
-	server.AddPath("/user-agent", (*Request).UserAgent)
-	server.Listen()
+	config, err := parseFlags()
+	if err != nil {
+		fmt.Println("Failed to parse flags: ", err.Error())
+		os.Exit(1)
+	}
+
+	RunningServer := NewServer(config)
+
+	RunningServer.AddPath("/", (*Request).Ok)
+	RunningServer.AddPath("/echo", (*Request).Echo)
+	RunningServer.AddPath("/user-agent", (*Request).UserAgent)
+	RunningServer.AddPath("/files", (*Request).Files)
+
+	RunningServer.Listen()
 }

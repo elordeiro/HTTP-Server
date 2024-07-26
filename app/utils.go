@@ -25,8 +25,10 @@ const (
 
 // Custom Types ---------------------------------------------------------------
 type Server struct {
-	Listener net.Listener
-	Paths    map[string]func(*Request) *Response
+	Listener  net.Listener
+	Port      string
+	Paths     map[string]func(*Request, *Server) *Response
+	Directory string
 }
 
 type Request struct {
@@ -43,6 +45,11 @@ type Response struct {
 	Reason  string
 	Headers map[string]string
 	Body    string
+}
+
+type Config struct {
+	Directory string
+	Port      string
 }
 
 // ----------------------------------------------------------------------------

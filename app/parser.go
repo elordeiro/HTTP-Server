@@ -27,9 +27,11 @@ func (rd *Reader) Read() (*Request, error) {
 			break
 		}
 
-		keyValue := strings.Split(header, " ")
+		keyValue := strings.Split(header, ":")
+		key := strings.TrimSpace(keyValue[0])
+		value := strings.TrimSpace(keyValue[1])
 
-		headers[keyValue[0]] = keyValue[1]
+		headers[key] = value
 	}
 
 	body := ""
