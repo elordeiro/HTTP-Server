@@ -30,6 +30,7 @@ type Server struct {
 	Port      string
 	Paths     map[string]func(*Request, *Server) *Response
 	Directory string
+	Encodings []string
 }
 
 type Request struct {

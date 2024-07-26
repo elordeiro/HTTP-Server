@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"slices"
 )
 
 // Globals --------------------------------------------------------------------
@@ -25,6 +26,7 @@ func NewServer(config *Config) *Server {
 		Paths:     map[string]func(*Request, *Server) *Response{},
 		Directory: config.Directory,
 		Port:      config.Port,
+		Encodings: []string{"gzip"},
 	}
 }
 
@@ -58,12 +60,25 @@ func (server *Server) Serve(conn net.Conn) {
 			return
 		}
 		response := server.Handle(request)
+		server.preliminaryChecks(request, response)
 		wt.Write(response)
 	}
 }
 
 func (server *Server) AddPath(path string, handler func(*Request, *Server) *Response) {
 	server.Paths[path] = handler
+}
+
+func (server *Server) AddEncoding(encoding string) {
+	server.Encodings = append(server.Encodings, encoding)
+}
+
+func (s *Server) preliminaryChecks(request *Request, response *Response) {
+	if encoding, ok := request.Headers["accept-encoding"]; ok {
+		if slices.Contains(s.Encodings, encoding) {
+			response.Headers["content-encoding"] = encoding
+		}
+	}
 }
 
 func parseFlags() (*Config, error) {
