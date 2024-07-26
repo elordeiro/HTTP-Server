@@ -38,7 +38,7 @@ func (rd *Reader) Read() (*Request, error) {
 	var body []byte
 	if parts[0] == MethodPost || parts[0] == MethodPut {
 		if l, ok := headers["content-length"]; !ok {
-			return nil, errors.New("ontent-Length Not Found")
+			return nil, errors.New("Content-Length Not Found")
 		} else {
 			len, _ := strconv.Atoi(l)
 			body = rd.readBody(len)

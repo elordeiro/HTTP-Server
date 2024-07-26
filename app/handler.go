@@ -97,6 +97,7 @@ func (req *Request) GetFile(s *Server) *Response {
 	}
 
 	file, err := os.Open(path)
+	defer file.Close()
 	if err != nil {
 		return req.NotFound(s)
 	}
@@ -121,6 +122,7 @@ func (req *Request) CreateFile(s *Server) *Response {
 	path := s.Directory + strings.TrimPrefix(req.Path, "/files/")
 
 	file, err := os.Create(path)
+	defer file.Close()
 	if err != nil {
 		return req.NotFound(s)
 	}

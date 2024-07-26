@@ -1,18 +1,15 @@
 package main
 
 import (
+	"compress/gzip"
 	"flag"
 	"fmt"
 	"net"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 )
-
-// Globals --------------------------------------------------------------------
-var RunningServer *Server
-
-// ----------------------------------------------------------------------------
 
 // Constructor ----------------------------------------------------------------
 func NewServer(config *Config) *Server {
@@ -79,7 +76,13 @@ func (s *Server) preliminaryChecks(request *Request, response *Response) {
 		encodings := strings.Split(e, ",")
 		for _, encoding := range encodings {
 			if slices.Contains(s.Encodings, strings.Trim(encoding, " ")) {
-				response.Headers["content-encoding"] = encoding
+				response.Headers["Content-Encoding"] = encoding
+				var buf strings.Builder
+				gz := gzip.NewWriter(&buf)
+				gz.Write([]byte(response.Body))
+				gz.Close()
+				response.Body = buf.String()
+				response.Headers["Content-Length"] = strconv.Itoa(len(response.Body))
 				break
 			}
 		}
