@@ -17,6 +17,7 @@ const (
 
 const (
 	StatusOk         = 200
+	StatusCreated    = 201
 	StatusBadRequest = 400
 	StatusNotFound   = 404
 )

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -34,9 +35,15 @@ func (rd *Reader) Read() (*Request, error) {
 		headers[key] = value
 	}
 
-	body := ""
+	var body []byte
 	if parts[0] == MethodPost || parts[0] == MethodPut {
-		body = rd.readBody()
+		if l, ok := headers["content-length"]; !ok {
+			return nil, errors.New("ontent-Length Not Found")
+		} else {
+			len, _ := strconv.Atoi(l)
+			body = rd.readBody(len)
+		}
+
 	}
 
 	return &Request{
@@ -44,20 +51,13 @@ func (rd *Reader) Read() (*Request, error) {
 		Path:    parts[1],
 		Version: parts[2],
 		Headers: headers,
-		Body:    body,
+		Body:    string(body),
 	}, nil
 }
 
-func (rd *Reader) readBody() string {
-	body := ""
-	for {
-		line, err := rd.reader.ReadString('\n')
-		if err != nil {
-			break
-		}
-
-		body += line
-	}
+func (rd *Reader) readBody(len int) []byte {
+	body := make([]byte, len)
+	rd.reader.Read(body)
 
 	return body
 }
