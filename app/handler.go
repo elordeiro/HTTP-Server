@@ -139,6 +139,66 @@ func (req *Request) CreateFile(s *Server) *Response {
 	}
 }
 
+func (req *Request) Index(s *Server) *Response {
+	path := s.Directory + "/index.html"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return req.NotFound(s)
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return req.NotFound(s)
+	}
+	defer file.Close()
+
+	content := make([]byte, 1024)
+	n, err := file.Read(content)
+	if err != nil {
+		return req.BadRequest(s)
+	}
+
+	headers := map[string]string{}
+	headers["Content-Type"] = "text/html"
+	headers["Content-Length"] = strconv.Itoa(n)
+	return &Response{
+		Version: req.Version,
+		Status:  StatusOk,
+		Reason:  "OK",
+		Headers: headers,
+		Body:    string(content),
+	}
+}
+
+func (req *Request) About(s *Server) *Response {
+	path := s.Directory + "/about.html"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return req.NotFound(s)
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return req.NotFound(s)
+	}
+	defer file.Close()
+
+	content := make([]byte, 1024)
+	n, err := file.Read(content)
+	if err != nil {
+		return req.BadRequest(s)
+	}
+
+	headers := map[string]string{}
+	headers["Content-Type"] = "text/html"
+	headers["Content-Length"] = strconv.Itoa(n)
+	return &Response{
+		Version: req.Version,
+		Status:  StatusOk,
+		Reason:  "OK",
+		Headers: headers,
+		Body:    string(content),
+	}
+}
+
 func (req *Request) BadRequest(s *Server) *Response {
 	return &Response{
 		Version: req.Version,

@@ -71,6 +71,15 @@ func (server *Server) AddEncoding(encoding string) {
 	server.Encodings = append(server.Encodings, encoding)
 }
 
+func (server *Server) RemoveEncoding(encoding string) {
+	for i, e := range server.Encodings {
+		if e == encoding {
+			server.Encodings = append(server.Encodings[:i], server.Encodings[i+1:]...)
+			break
+		}
+	}
+}
+
 func (s *Server) preliminaryChecks(request *Request, response *Response) {
 	if e, ok := request.Headers["accept-encoding"]; ok {
 		encodings := strings.Split(e, ",")
@@ -91,7 +100,7 @@ func (s *Server) preliminaryChecks(request *Request, response *Response) {
 
 func parseFlags() (*Config, error) {
 	config := &Config{}
-	flag.StringVar(&config.Directory, "directory", "", "Directory that server can access")
+	flag.StringVar(&config.Directory, "directory", "/static/", "Directory that server can access")
 	flag.StringVar(&config.Port, "port", "4221", "Server Listening Port")
 
 	flag.Parse()
