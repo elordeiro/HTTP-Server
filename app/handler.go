@@ -22,7 +22,7 @@ func (server *Server) Get(req *Request) *Response {
 		if handler, ok := server.Paths["/"]; ok {
 			return handler(req, server)
 		} else {
-			return req.NotFound(server)
+			return req.Index(server)
 		}
 	}
 
