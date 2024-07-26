@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"slices"
+	"strings"
 )
 
 // Globals --------------------------------------------------------------------
@@ -74,9 +75,13 @@ func (server *Server) AddEncoding(encoding string) {
 }
 
 func (s *Server) preliminaryChecks(request *Request, response *Response) {
-	if encoding, ok := request.Headers["accept-encoding"]; ok {
-		if slices.Contains(s.Encodings, encoding) {
-			response.Headers["content-encoding"] = encoding
+	if e, ok := request.Headers["accept-encoding"]; ok {
+		encodings := strings.Split(e, ",")
+		for _, encoding := range encodings {
+			if slices.Contains(s.Encodings, strings.Trim(encoding, " ")) {
+				response.Headers["content-encoding"] = encoding
+				break
+			}
 		}
 	}
 }
