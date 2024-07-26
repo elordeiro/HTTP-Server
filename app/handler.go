@@ -97,10 +97,10 @@ func (req *Request) GetFile(s *Server) *Response {
 	}
 
 	file, err := os.Open(path)
-	defer file.Close()
 	if err != nil {
 		return req.NotFound(s)
 	}
+	defer file.Close()
 
 	content := make([]byte, 1024)
 	n, err := file.Read(content)
@@ -122,10 +122,10 @@ func (req *Request) CreateFile(s *Server) *Response {
 	path := s.Directory + strings.TrimPrefix(req.Path, "/files/")
 
 	file, err := os.Create(path)
-	defer file.Close()
 	if err != nil {
 		return req.NotFound(s)
 	}
+	defer file.Close()
 
 	n, err := file.Write([]byte(req.Body))
 	if n != len(req.Body) || err != nil {

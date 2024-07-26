@@ -105,12 +105,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	RunningServer := NewServer(config)
+	server := NewServer(config)
 
-	RunningServer.AddPath("/", (*Request).Ok)
-	RunningServer.AddPath("/echo", (*Request).Echo)
-	RunningServer.AddPath("/user-agent", (*Request).UserAgent)
-	RunningServer.AddPath("/files", (*Request).Files)
+	server.AddPath("/", (*Request).Ok)
+	server.AddPath("/echo", (*Request).Echo)
+	server.AddPath("/user-agent", (*Request).UserAgent)
+	server.AddPath("/files", (*Request).Files)
 
-	RunningServer.Listen()
+	server.Listen()
 }
