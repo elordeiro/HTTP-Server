@@ -52,7 +52,7 @@ The server supports the following features:
 
 3. **Run the server**:
     ```bash
-    ./your_server.sh
+    ./server.sh
     ```
 
 ## Configuration
